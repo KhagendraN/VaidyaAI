@@ -36,6 +36,7 @@ from packages.knowledge_base.scripts.config import *
 from langchain_mistralai import MistralAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pinecone import Pinecone, ServerlessSpec
+from packages.knowledge_base.scripts.models import RawDocument, Chunk
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,29 +44,6 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger("ingest")
-
-
-
-@dataclass
-class RawDocument:
-    """
-    Normalized representation of a single loaded source document, *before*
-    chunking. One RawDocument might become many chunks, or — if it's already
-    small (e.g. a single verse) — exactly one.
-    """
-    text: str
-    metadata: dict = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        self.text = self.text.strip()
-
-
-@dataclass
-class Chunk:
-    """A single piece of text that will become one Pinecone vector."""
-    id: str
-    text: str
-    metadata: dict
 
 
 def load_documents(source_filter: str | None = None) -> list[RawDocument]:
